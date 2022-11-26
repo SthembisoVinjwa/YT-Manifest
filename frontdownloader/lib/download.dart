@@ -33,13 +33,14 @@ class DownloadScreenState extends State<DownloadScreen> {
     }
     return Scaffold(
       appBar: AppBar(
+        elevation: 0,
         leading: IconButton(
             icon: const Icon(Icons.arrow_back_sharp, color: Colors.white),
             onPressed: () {
               Navigator.of(context).pop();
               Navigator.of(context).pop();
             }),
-        title: const Center(child: Text("Youtube video downloader")),
+        title: const Center(child: Text("YT-Manifest")),
       ),
       backgroundColor: Colors.white,
       body: mainPage(context, _dropdownValue),

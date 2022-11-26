@@ -1,11 +1,11 @@
-sudo apt-get updateimport 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 import 'download.dart';
 
 const urlPrefix = 'http://localhost:5000';
- 
+
 void main() {
   runApp(const MyApp());
 }
@@ -52,8 +52,38 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Center(child: Text("Youtube video downloader")),
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(60.0),
+          child: AppBar(
+            elevation: 0,
+            leading: IconButton(
+                icon: const Icon(Icons.menu, color: Colors.white),
+                onPressed: () {}),
+            title: const Text("YT-Manifest"),
+            centerTitle: true,
+            actions: [
+              Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: ElevatedButton(
+                    style: ButtonStyle(
+                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                            RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18.0),
+                                side: const BorderSide(color: Color(0xff3b3b98))))),
+                    onPressed: () {},
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const <Widget>[
+                        Icon(Icons.account_circle_outlined),
+                        SizedBox(
+                          width: 10,
+                        ), // icon
+                        Text("Log in"), // text
+                      ],
+                    ),
+                  ))
+            ],
+          ),
         ),
         body: _mainPage(context));
   }
@@ -74,14 +104,14 @@ class _MyHomePageState extends State<MyHomePage> {
                   height: 45,
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 90.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 60.0),
                   child: linkContainerField('Youtube link', linkController),
                 ),
                 const SizedBox(
                   height: 45,
                 ),
                 Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 30),
+                    padding: const EdgeInsets.symmetric(horizontal: 30),
                     child: downloadbutton(context)),
               ]),
         ));
