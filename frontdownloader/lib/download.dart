@@ -5,9 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 const urlPrefix = 'http://localhost:5000';
 
@@ -36,7 +35,10 @@ class DownloadScreenState extends State<DownloadScreen> {
       appBar: AppBar(
         leading: IconButton(
             icon: const Icon(Icons.arrow_back_sharp, color: Colors.white),
-            onPressed: () => Navigator.of(context).pop()),
+            onPressed: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
+            }),
         title: const Center(child: Text("Youtube video downloader")),
       ),
       backgroundColor: Colors.white,
@@ -106,41 +108,39 @@ class DownloadScreenState extends State<DownloadScreen> {
             ],
           ),
           onPressed: () async {
-            getDownloadPath().then((value) async {
-              var yt = YoutubeExplode();
-              MuxedStreamInfo info = widget.manifest.muxed.firstWhere(
-                      (element) => element.qualityLabel == _dropdownValue);
-              var stream = yt.videos.streamsClient.get(info);
-              var filePath = '${value!}/${widget.video.id}.mp4';
-              var file = File(filePath);
+            var yt = YoutubeExplode();
+            MuxedStreamInfo info = widget.manifest.muxed.firstWhere(
+                (element) => element.qualityLabel == _dropdownValue);
+            var stream = yt.videos.streamsClient.get(info);
+            var permissionStatus = await Permission.storage.request();
+            if (permissionStatus.isGranted) {
+              final file = File(
+                  '${'/storage/emulated/0/Download'}/${widget.video.title} + ${widget.video.id}.mp4');
               var fileStream = file.openWrite();
-              print(fileStream);
               await stream.pipe(fileStream);
               await fileStream.flush();
               await fileStream.close();
-            });
+            } else {
+              showDialog(
+                context: context,
+                builder: (context) => CupertinoAlertDialog(
+                  title: const Text("Access to local storage denied"),
+                  content: const Text(
+                      "Allow the application to access your storage in order to download and save the video."),
+                  actions: [
+                    CupertinoDialogAction(
+                      onPressed: () {
+                        Navigator.of(context).pop;
+                        Navigator.of(context).pop;
+                      },
+                      child: const Text("Ok"),
+                    )
+                  ],
+                ),
+                barrierDismissible: true,
+              );
+            }
           },
         ));
-  }
-
-  Future<String?> getDownloadPath() async {
-    Directory? directory;
-    try {
-      if (Platform.isIOS) {
-        directory = await getApplicationDocumentsDirectory();
-      } else if (Platform.isLinux) {
-        directory = Directory('/Home/Downloads');
-      } else {
-        directory = Directory('/storage/emulated/0/Download');
-        // Put file in global download folder, if for an unknown reason it didn't exist, we fallback
-        // ignore: avoid_slow_async_io
-        if (!await directory.exists()) {
-          directory = await getExternalStorageDirectory();
-        }
-      }
-    } catch (err, stack) {
-      print("Cannot get download folder path");
-    }
-    return directory?.path;
   }
 }

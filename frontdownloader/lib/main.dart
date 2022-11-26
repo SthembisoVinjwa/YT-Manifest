@@ -67,7 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
               children: <Widget>[
                 youtubeLogo(),
                 const Text(
-                  "Paste or insert link:",
+                  "Paste/Insert link:",
                   style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(
@@ -101,19 +101,42 @@ class _MyHomePageState extends State<MyHomePage> {
                   style: TextStyle(color: Colors.white, fontSize: 16)),
             ],
           ),
-            onPressed: () async {
-              var yt = YoutubeExplode();
+          onPressed: () async {
+            var yt = YoutubeExplode();
 
-              var video = await yt.videos.get(linkController.text.trim());
-              var manifest = await yt.videos.streamsClient.getManifest(video.url);
+            showDialog(
+                context: context,
+                builder: (context) {
+                  return Material(
+                    type: MaterialType.transparency,
+                    child: Container(
+                        padding: EdgeInsets.fromLTRB(
+                            0, MediaQuery.of(context).size.height / 2, 0, 0),
+                        child: Column(
+                          children: const <Widget>[
+                            CircularProgressIndicator(
+                              color: Color(0xff3b3b98),
+                            ),
+                            SizedBox(
+                              height: 15,
+                            ),
+                          ],
+                        )),
+                  );
+                });
 
-              print(manifest);
+            var video = await yt.videos.get(linkController.text.trim());
+            var manifest = await yt.videos.streamsClient.getManifest(video.url);
 
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => DownloadScreen(video: video, manifest: manifest,)),
-              );
-            },
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => DownloadScreen(
+                        video: video,
+                        manifest: manifest,
+                      )),
+            );
+          },
         ));
   }
 
