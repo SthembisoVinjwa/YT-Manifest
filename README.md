@@ -1,5 +1,10 @@
-# youtube_downloader
+# YT-Manifest
 
+An app for downloading and saving youtube videos, links and  comments.
+
+Platforms: Ios, android
+
+Dependecies and Installations:
 ##For Linux - Flutter
 sudo snap install flutter --classic
 flutter sdk-path
