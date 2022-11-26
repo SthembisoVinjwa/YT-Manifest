@@ -2,7 +2,7 @@
 
 An app for downloading and saving youtube videos, links and  comments.
 
-Platforms: Ios, android
+Platforms: Ios, Android, Windows, Linux
 
 Dependecies and Installations:
 ##For Linux - Flutter
