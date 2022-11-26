@@ -7,15 +7,20 @@ import 'dart:convert';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:console/console.dart' as console;
 
 const urlPrefix = 'http://localhost:5000';
 
 class DownloadScreen extends StatefulWidget {
   const DownloadScreen(
-      {super.key, required this.video, required this.manifest});
+      {super.key,
+      required this.video,
+      required this.manifest,
+      required this.thumbnail});
 
   final Video video;
   final StreamManifest manifest;
+  final Image thumbnail;
 
   @override
   State<DownloadScreen> createState() => DownloadScreenState();
@@ -24,6 +29,9 @@ class DownloadScreen extends StatefulWidget {
 class DownloadScreenState extends State<DownloadScreen> {
   String? _dropdownValue;
   bool set = false;
+  var progress;
+  double downloadPercentage = 0.0;
+  String downloadMessage = '';
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +48,13 @@ class DownloadScreenState extends State<DownloadScreen> {
               Navigator.of(context).pop();
               Navigator.of(context).pop();
             }),
-        title: const Center(child: Text("YT-Manifest")),
+        title: const Text(
+          "YT-Manifest",
+          style: TextStyle(
+            fontSize: 25.0,
+          ),
+        ),
+        centerTitle: true,
       ),
       backgroundColor: Colors.white,
       body: mainPage(context, _dropdownValue),
@@ -53,7 +67,8 @@ class DownloadScreenState extends State<DownloadScreen> {
     for (var resolution in widget.manifest.muxed) {
       items.add(DropdownMenuItem(
           value: resolution.qualityLabel,
-          child: Text(resolution.qualityLabel)));
+          child: Text(
+              'Resolution: ${resolution.qualityLabel}  -  Size: ${resolution.size.totalMegaBytes.toStringAsFixed(2)}mb')));
     }
 
     return SingleChildScrollView(
@@ -68,13 +83,13 @@ class DownloadScreenState extends State<DownloadScreen> {
                       fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 20),
-                thumbnail(widget.video.thumbnails.highResUrl),
+                widget.thumbnail,
                 const SizedBox(height: 20),
                 DropdownButton(
                   hint: const Text('Resolution'),
                   items: items,
                   iconEnabledColor: const Color(0xff3b3b98),
-                  style: const TextStyle(color: Colors.black, fontSize: 18),
+                  style: const TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
                   value: _dropdownValue,
                   onChanged: (String? value) {
                     if (value is String) {
@@ -85,19 +100,30 @@ class DownloadScreenState extends State<DownloadScreen> {
                   },
                 ),
                 const SizedBox(height: 20),
-                downloadbutton(context)
+                downloadbutton(context),
+                const SizedBox(height: 20),
+                const SizedBox(height: 20),
+                const SizedBox(height: 20),
+                SizedBox(
+                  height: 30,
+                  width: 60,
+                  child: CircularProgressIndicator(
+                    color: const Color(0xff3b3b98),
+                    value: downloadPercentage/100.0,
+                    strokeWidth: 20,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Text(downloadMessage, style: const TextStyle(
+                    fontSize: 20, fontWeight: FontWeight.bold),),
               ]),
         ));
-  }
-
-  Widget thumbnail(String url) {
-    return Image.network(url);
   }
 
   Widget downloadbutton(context) {
     return Material(
         elevation: 5,
-        color: const Color(0xff3b3b98),
+        color: Color(0xff3b3b98),
         borderRadius: BorderRadius.circular(15.0),
         child: MaterialButton(
           minWidth: MediaQuery.of(context).size.width * 1 / 10,
@@ -113,33 +139,85 @@ class DownloadScreenState extends State<DownloadScreen> {
             MuxedStreamInfo info = widget.manifest.muxed.firstWhere(
                 (element) => element.qualityLabel == _dropdownValue);
             var stream = yt.videos.streamsClient.get(info);
-            var permissionStatus = await Permission.storage.request();
-            if (permissionStatus.isGranted) {
+            String? downloadPath = '';
+
+            var len = info.size.totalBytes;
+            var count = 0;
+
+            if (Platform.isLinux) {
+              var path = await getDownloadsDirectory();
+              downloadPath = path?.path;
               final file = File(
-                  '${'/storage/emulated/0/Download'}/${widget.video.title} + ${widget.video.id}.mp4');
+                  '$downloadPath/${widget.video.title} + ${widget.video.id}.mp4');
               var fileStream = file.openWrite();
-              await stream.pipe(fileStream);
+
+              await for (final data in stream) {
+                count += data.length;
+                setState(() {
+                  progress = ((count / len) * 100).ceil();
+                  downloadPercentage = (progress == null ? 0.0 : progress*1.0);
+                  downloadMessage = 'Download progress: $downloadPercentage%';
+                  fileStream.add(data);
+                });
+              }
+
+              setState(() {
+                downloadMessage = 'Done!';
+              });
+
+              //await stream.pipe(fileStream);
+
               await fileStream.flush();
               await fileStream.close();
             } else {
-              showDialog(
-                context: context,
-                builder: (context) => CupertinoAlertDialog(
-                  title: const Text("Access to local storage denied"),
-                  content: const Text(
-                      "Allow the application to access your storage in order to download and save the video."),
-                  actions: [
-                    CupertinoDialogAction(
-                      onPressed: () {
-                        Navigator.of(context).pop;
-                        Navigator.of(context).pop;
-                      },
-                      child: const Text("Ok"),
-                    )
-                  ],
-                ),
-                barrierDismissible: true,
-              );
+              var permissionStatus = await Permission.storage.request();
+              if (permissionStatus.isGranted) {
+                if (Platform.isAndroid) {
+                  downloadPath = '/storage/emulated/0/Download';
+                } else {
+                  var path = await getDownloadsDirectory();
+                  downloadPath = path?.path;
+                }
+                final file = File(
+                    '$downloadPath/${widget.video.title} + ${widget.video.id}.mp4');
+                var fileStream = file.openWrite();
+
+                await for (final data in stream) {
+                  count += data.length;
+                  setState(() {
+                    progress = ((count / len) * 100).ceil();
+                    downloadPercentage = (progress == null ? 0.0 : progress*1.0);
+                    downloadMessage = 'Download progress: $downloadPercentage%';
+                    fileStream.add(data);
+                  });
+                }
+
+                setState(() {
+                  downloadMessage = 'Done!';
+                });
+
+                await fileStream.flush();
+                await fileStream.close();
+              } else {
+                showDialog(
+                  context: context,
+                  builder: (context) => CupertinoAlertDialog(
+                    title: const Text("Access to local storage denied"),
+                    content: const Text(
+                        "Allow the application to access your storage in order to download and save the video."),
+                    actions: [
+                      CupertinoDialogAction(
+                        onPressed: () {
+                          Navigator.of(context).pop;
+                          Navigator.of(context).pop;
+                        },
+                        child: const Text("Ok"),
+                      )
+                    ],
+                  ),
+                  barrierDismissible: true,
+                );
+              }
             }
           },
         ));

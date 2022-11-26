@@ -59,7 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
             leading: IconButton(
                 icon: const Icon(Icons.menu, color: Colors.white),
                 onPressed: () {}),
-            title: const Text("YT-Manifest"),
+            title: const Text("YT-Manifest", style: TextStyle(fontSize: 25.0,),),
             centerTitle: true,
             actions: [
               Padding(
@@ -69,7 +69,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                             RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(18.0),
-                                side: const BorderSide(color: Color(0xff3b3b98))))),
+                                side: const BorderSide(color: Colors.white)))),
                     onPressed: () {},
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -133,7 +133,6 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           onPressed: () async {
             var yt = YoutubeExplode();
-
             showDialog(
                 context: context,
                 builder: (context) {
@@ -157,6 +156,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
             var video = await yt.videos.get(linkController.text.trim());
             var manifest = await yt.videos.streamsClient.getManifest(video.url);
+            Image thumbnail = Image.network(video.thumbnails.standardResUrl);
 
             Navigator.push(
               context,
@@ -164,6 +164,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   builder: (context) => DownloadScreen(
                         video: video,
                         manifest: manifest,
+                        thumbnail: thumbnail,
                       )),
             );
           },
