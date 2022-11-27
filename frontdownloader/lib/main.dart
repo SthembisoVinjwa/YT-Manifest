@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 import 'download.dart';
+import 'package:progress_indicators/progress_indicators.dart';
 
 const urlPrefix = 'http://localhost:5000';
 
@@ -48,26 +49,55 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController linkController = TextEditingController();
+  GlobalKey key = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        drawer:  Drawer(
+          child: ListView(
+            // Important: Remove any padding from the ListView.
+            padding: EdgeInsets.zero,
+            children: [
+              const DrawerHeader(
+                decoration: BoxDecoration(
+                  color: Color(0xff3b3b98),
+                ),
+                child: Text('YT-Manifest'),
+              ),
+              ListTile(
+                title: const Text('Item 1'),
+                onTap: () {
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: const Text('Item 2'),
+                onTap: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        ),
         appBar: PreferredSize(
           preferredSize: Size.fromHeight(60.0),
           child: AppBar(
             elevation: 0,
-            leading: IconButton(
-                icon: const Icon(Icons.menu, color: Colors.white),
-                onPressed: () {}),
-            title: const Text("YT-Manifest", style: TextStyle(fontSize: 25.0,),),
+            title: const Text(
+              "YT-Manifest",
+              style: TextStyle(
+                fontSize: 25.0,
+              ),
+            ),
             centerTitle: true,
             actions: [
               Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: ElevatedButton(
                     style: ButtonStyle(
-                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                            RoundedRectangleBorder(
+                        shape: MaterialStateProperty
+                            .all<RoundedRectangleBorder>(RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(18.0),
                                 side: const BorderSide(color: Colors.white)))),
                     onPressed: () {},
@@ -126,6 +156,7 @@ class _MyHomePageState extends State<MyHomePage> {
           minWidth: MediaQuery.of(context).size.width * 1 / 10,
           height: 55,
           child: Stack(
+            key: key,
             children: const [
               Text('Download',
                   style: TextStyle(color: Colors.white, fontSize: 16)),
@@ -140,15 +171,31 @@ class _MyHomePageState extends State<MyHomePage> {
                     type: MaterialType.transparency,
                     child: Container(
                         padding: EdgeInsets.fromLTRB(
-                            0, MediaQuery.of(context).size.height / 2, 0, 0),
+                            0,
+                            ((key.currentContext?.findRenderObject()
+                                            as RenderBox)
+                                        .localToGlobal(Offset.zero))
+                                    .dy +
+                                95,
+                            0,
+                            0),
                         child: Column(
-                          children: const <Widget>[
-                            CircularProgressIndicator(
-                              color: Color(0xff3b3b98),
+                          children: <Widget>[
+                            const SizedBox(
+                              height: 30,
+                              width: 60,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 20,
+                              ),
                             ),
-                            SizedBox(
-                              height: 15,
+                            const SizedBox(
+                              height: 40,
                             ),
+                            ScalingText(
+                              'Loading...',
+                              style: const TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            )
                           ],
                         )),
                   );
