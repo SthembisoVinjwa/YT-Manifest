@@ -7,7 +7,6 @@ import 'dart:convert';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:console/console.dart' as console;
 
 const urlPrefix = 'http://localhost:5000';
 
@@ -32,6 +31,7 @@ class DownloadScreenState extends State<DownloadScreen> {
   var progress;
   double downloadPercentage = 0.0;
   String downloadMessage = '';
+  Widget cancel = const Text('');
 
   @override
   Widget build(BuildContext context) {
@@ -103,12 +103,13 @@ class DownloadScreenState extends State<DownloadScreen> {
                 downloadbutton(context),
                 const SizedBox(height: 20),
                 const SizedBox(height: 20),
-                const SizedBox(height: 20),
+                const SizedBox(height: 10),
                 SizedBox(
                   height: 30,
                   width: 60,
                   child: CircularProgressIndicator(
                     color: const Color(0xff3b3b98),
+                    valueColor: const AlwaysStoppedAnimation(Color(0xff3b3b98)),
                     value: downloadPercentage/100.0,
                     strokeWidth: 20,
                   ),
@@ -116,6 +117,8 @@ class DownloadScreenState extends State<DownloadScreen> {
                 const SizedBox(height: 20),
                 Text(downloadMessage, style: const TextStyle(
                     fontSize: 20, fontWeight: FontWeight.bold),),
+                const SizedBox(height: 30),
+                cancel,
               ]),
         ));
   }
@@ -149,6 +152,12 @@ class DownloadScreenState extends State<DownloadScreen> {
               downloadPath = path?.path;
               final file = File(
                   '$downloadPath/${widget.video.title} + ${widget.video.id}.mp4');
+
+              // Delete the file if exists.
+              if (file.existsSync()) {
+                file.deleteSync();
+              }
+
               var fileStream = file.openWrite();
 
               await for (final data in stream) {
@@ -157,15 +166,15 @@ class DownloadScreenState extends State<DownloadScreen> {
                   progress = ((count / len) * 100).ceil();
                   downloadPercentage = (progress == null ? 0.0 : progress*1.0);
                   downloadMessage = 'Download progress: $downloadPercentage%';
+                  cancel = cancelDownload(context, "Cancel");
                   fileStream.add(data);
                 });
               }
 
               setState(() {
                 downloadMessage = 'Done!';
+                cancel = cancelDownload(context, "Delete");
               });
-
-              //await stream.pipe(fileStream);
 
               await fileStream.flush();
               await fileStream.close();
@@ -180,6 +189,12 @@ class DownloadScreenState extends State<DownloadScreen> {
                 }
                 final file = File(
                     '$downloadPath/${widget.video.title} + ${widget.video.id}.mp4');
+
+                // Delete the file if exists.
+                if (file.existsSync()) {
+                  file.deleteSync();
+                }
+
                 var fileStream = file.openWrite();
 
                 await for (final data in stream) {
@@ -188,12 +203,14 @@ class DownloadScreenState extends State<DownloadScreen> {
                     progress = ((count / len) * 100).ceil();
                     downloadPercentage = (progress == null ? 0.0 : progress*1.0);
                     downloadMessage = 'Download progress: $downloadPercentage%';
+                    cancel = cancelDownload(context, "Cancel");
                     fileStream.add(data);
                   });
                 }
 
                 setState(() {
                   downloadMessage = 'Done!';
+                  cancel = cancelDownload(context, "Delete");
                 });
 
                 await fileStream.flush();
@@ -219,6 +236,25 @@ class DownloadScreenState extends State<DownloadScreen> {
                 );
               }
             }
+          },
+        ));
+  }
+
+  Widget cancelDownload(context, String title) {
+    return Material(
+        elevation: 5,
+        color: Colors.red,
+        borderRadius: BorderRadius.circular(15.0),
+        child: MaterialButton(
+          minWidth: MediaQuery.of(context).size.width * 1 / 10,
+          height: 55,
+          child: Stack(
+            children:  [
+              Text('   $title   ',
+                  style: TextStyle(color: Colors.white, fontSize: 16)),
+            ],
+          ),
+          onPressed: () async {
           },
         ));
   }

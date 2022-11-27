@@ -54,7 +54,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        drawer:  Drawer(
+        drawer: Drawer(
           child: ListView(
             // Important: Remove any padding from the ListView.
             padding: EdgeInsets.zero,
@@ -63,7 +63,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 decoration: BoxDecoration(
                   color: Color(0xff3b3b98),
                 ),
-                child: Text('YT-Manifest'),
+                child: Text(
+                  'YT-Manifest',
+                  style: TextStyle(
+                    fontSize: 25.0,
+                  ),
+                ),
               ),
               ListTile(
                 title: const Text('Item 1'),

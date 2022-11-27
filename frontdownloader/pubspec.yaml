@@ -38,8 +38,6 @@ dependencies:
 
   permission_handler:
 
-  console:
-
   progress_indicators: ^1.0.0
 
   # The following adds the Cupertino Icons font to your application.
