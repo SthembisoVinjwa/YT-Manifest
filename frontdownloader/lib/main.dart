@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:lottie/lottie.dart';
 import 'dart:convert';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 import 'download.dart';
@@ -71,17 +72,23 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
               ListTile(
-                title: const Text('Item 1'),
+                title: const Text('Saved Links'),
                 onTap: () {
                   Navigator.pop(context);
                 },
               ),
               ListTile(
-                title: const Text('Item 2'),
+                title: const Text('Downloads'),
                 onTap: () {
                   Navigator.pop(context);
                 },
               ),
+              ListTile(
+                title: const Text('Log Out'),
+                onTap: () {
+                  Navigator.pop(context);
+                },
+              )
             ],
           ),
         ),
@@ -130,7 +137,8 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                youtubeLogo(),
+                // youtubeLogo(),
+                Lottie.network('https://assets9.lottiefiles.com/private_files/lf30_2h8ujfub.json',height: 200,width: 200),
                 const Text(
                   "Paste/Insert link:",
                   style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
