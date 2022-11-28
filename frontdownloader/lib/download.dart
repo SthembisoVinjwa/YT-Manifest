@@ -177,11 +177,15 @@ class DownloadScreenState extends State<DownloadScreen> {
               }
 
               setState(() {
-                if (stop == false && justDeleted == false) {
+                if (stop == false) {
                   downloadMessage = 'Done!';
                 } else {
                   stop = false;
-                  downloadMessage = 'Download canceled!';
+                  if (justDeleted == false) {
+                    downloadMessage = 'Download canceled!';
+                  } else {
+                    downloadMessage = 'Done!';
+                  }
                 }
                 cancel = cancelDownload(context, "Delete", file);
               });
@@ -208,7 +212,7 @@ class DownloadScreenState extends State<DownloadScreen> {
                 var fileStream = file.openWrite();
 
                 await for (final data in stream) {
-                  if (stop == true) {
+                  if (stop == true && justDeleted == false) {
                     break;
                   }
                   count += data.length;
@@ -222,11 +226,15 @@ class DownloadScreenState extends State<DownloadScreen> {
                 }
 
                 setState(() {
-                  if (stop == false && justDeleted == false) {
+                  if (stop == false) {
                     downloadMessage = 'Done!';
                   } else {
                     stop = false;
-                    downloadMessage = 'Download canceled!';
+                    if (justDeleted == false) {
+                      downloadMessage = 'Download canceled!';
+                    } else {
+                      downloadMessage = 'Done!';
+                    }
                   }
                   cancel = cancelDownload(context, "Delete", file);
                 });

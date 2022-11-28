@@ -53,6 +53,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController linkController = TextEditingController();
   GlobalKey key = GlobalKey();
+  String login = 'log In';
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +88,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
               ),
               ListTile(
-                title: const Text('Log Out'),
+                title: Text(login),
                 onTap: () {
                   Navigator.pop(context);
                 },
@@ -118,12 +119,12 @@ class _MyHomePageState extends State<MyHomePage> {
                     onPressed: () {},
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: const <Widget>[
-                        Icon(Icons.account_circle_outlined),
-                        SizedBox(
+                      children: <Widget>[
+                        const Icon(Icons.account_circle_outlined),
+                        const SizedBox(
                           width: 10,
                         ), // icon
-                        Text("Log in"), // text
+                        Text(login), // text
                       ],
                     ),
                   ))
@@ -186,6 +187,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           onPressed: () async {
             var yt = YoutubeExplode();
+
             showDialog(
                 context: context,
                 builder: (context) {
@@ -224,19 +226,26 @@ class _MyHomePageState extends State<MyHomePage> {
                   );
                 });
 
-            var video = await yt.videos.get(linkController.text.trim());
-            var manifest = await yt.videos.streamsClient.getManifest(video.url);
-            Image thumbnail = Image.network(video.thumbnails.standardResUrl);
+            try {
+              var video = await yt.videos.get(linkController.text.trim());
+              var manifest =
+                  await yt.videos.streamsClient.getManifest(video.url);
+              Image thumbnail = Image.network(video.thumbnails.standardResUrl);
 
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => DownloadScreen(
-                        video: video,
-                        manifest: manifest,
-                        thumbnail: thumbnail,
-                      )),
-            );
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => DownloadScreen(
+                          video: video,
+                          manifest: manifest,
+                          thumbnail: thumbnail,
+                        )),
+              );
+            } catch (error) {
+              showErrorMessage(
+                  'Invalid Youtube ID or URL: "${linkController.text.trim()}"\n'
+                      'Ensure you have stable internet connection and insert a valid youtube video link');
+            }
           },
         ));
   }
@@ -247,6 +256,31 @@ class _MyHomePageState extends State<MyHomePage> {
       height: 150,
       width: 150,
     );
+  }
+
+  void showErrorMessage(String message) {
+    AlertDialog inputFail = AlertDialog(
+      title: const Text("A Problem Occured"),
+      content: Text(message),
+      actions: [
+        failbutton(context),
+      ],
+    );
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return inputFail;
+      },
+    );
+  }
+
+  Widget failbutton(context) {
+    return TextButton(
+        onPressed: () {
+          Navigator.pop(context);
+          Navigator.pop(context);
+        },
+        child: const Text('Ok', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)));
   }
 
   Widget linkContainerField(
