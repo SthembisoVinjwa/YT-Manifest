@@ -31,6 +31,8 @@ class MyApp extends StatelessWidget {
       900: const Color.fromRGBO(59, 59, 152, 1),
     };
 
+    //0xffff0202 = red
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -132,17 +134,20 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget _mainPage(context) {
     return SingleChildScrollView(
-        padding: const EdgeInsets.all(30.0),
+        padding: const EdgeInsets.all(15.0),
         child: Center(
           child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 // youtubeLogo(),
                 Lottie.network('https://assets9.lottiefiles.com/private_files/lf30_2h8ujfub.json',height: 200,width: 200),
-                const Text(
-                  "Paste/Insert link:",
-                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                const SizedBox(
+                  height: 45,
                 ),
+                HeartbeatProgressIndicator(child: const Text(
+                  "Paste/Insert link:",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),),
                 const SizedBox(
                   height: 45,
                 ),
@@ -240,7 +245,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget linkContainerField(
-      
       String hintText, TextEditingController textController) {
     var border = OutlineInputBorder(
         borderRadius: BorderRadius.circular(20),
