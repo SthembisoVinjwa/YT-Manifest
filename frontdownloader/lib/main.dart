@@ -207,6 +207,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               height: 30,
                               width: 60,
                               child: CircularProgressIndicator(
+                                color: Color.fromRGBO(59, 59, 152, 20),
                                 strokeWidth: 20,
                               ),
                             ),
