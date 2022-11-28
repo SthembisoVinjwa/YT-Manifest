@@ -32,6 +32,7 @@ class DownloadScreenState extends State<DownloadScreen> {
   double downloadPercentage = 0.0;
   String downloadMessage = '';
   Widget cancel = const Text('');
+  bool stop = false;
 
   @override
   Widget build(BuildContext context) {
@@ -138,6 +139,7 @@ class DownloadScreenState extends State<DownloadScreen> {
             ],
           ),
           onPressed: () async {
+            print(true);
             var yt = YoutubeExplode();
             MuxedStreamInfo info = widget.manifest.muxed.firstWhere(
                 (element) => element.qualityLabel == _dropdownValue);
@@ -161,6 +163,9 @@ class DownloadScreenState extends State<DownloadScreen> {
               var fileStream = file.openWrite();
 
               await for (final data in stream) {
+                if (stop == true) {
+                  break;
+                }
                 count += data.length;
                 setState(() {
                   progress = ((count / len) * 100).ceil();
@@ -172,7 +177,11 @@ class DownloadScreenState extends State<DownloadScreen> {
               }
 
               setState(() {
-                downloadMessage = 'Done!';
+                if (stop == false) {
+                  downloadMessage = 'Done!';
+                } else {
+                  downloadMessage = 'Download canceled!';
+                }
                 cancel = cancelDownload(context, "Delete");
               });
 
@@ -198,6 +207,9 @@ class DownloadScreenState extends State<DownloadScreen> {
                 var fileStream = file.openWrite();
 
                 await for (final data in stream) {
+                  if (stop == true) {
+                    break;
+                  }
                   count += data.length;
                   setState(() {
                     progress = ((count / len) * 100).ceil();
@@ -209,7 +221,11 @@ class DownloadScreenState extends State<DownloadScreen> {
                 }
 
                 setState(() {
-                  downloadMessage = 'Done!';
+                  if (stop == false) {
+                    downloadMessage = 'Done!';
+                  } else {
+                    downloadMessage = 'Download canceled!';
+                  }
                   cancel = cancelDownload(context, "Delete");
                 });
 
@@ -243,7 +259,7 @@ class DownloadScreenState extends State<DownloadScreen> {
   Widget cancelDownload(context, String title) {
     return Material(
         elevation: 5,
-        color: const Color(0xff3b3b98),
+        color: Colors.red,
         borderRadius: BorderRadius.circular(15.0),
         child: MaterialButton(
           minWidth: MediaQuery.of(context).size.width * 1 / 10,
@@ -255,6 +271,9 @@ class DownloadScreenState extends State<DownloadScreen> {
             ],
           ),
           onPressed: () async {
+            setState(() {
+              stop = true;
+            });
           },
         ));
   }

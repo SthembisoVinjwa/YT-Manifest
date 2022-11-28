@@ -69,6 +69,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Text(
                   'YT-Manifest',
                   style: TextStyle(
+                    color: Colors.white,
                     fontSize: 25.0,
                   ),
                 ),
@@ -107,7 +108,7 @@ class _MyHomePageState extends State<MyHomePage> {
             centerTitle: true,
             actions: [
               Padding(
-                  padding: const EdgeInsets.all(10.0),
+                  padding: const EdgeInsets.all(12.0),
                   child: ElevatedButton(
                     style: ButtonStyle(
                         shape: MaterialStateProperty
@@ -134,29 +135,32 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget _mainPage(context) {
     return SingleChildScrollView(
-        padding: const EdgeInsets.all(40.0),
+        padding: const EdgeInsets.all(30.0),
         child: Center(
           child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 // youtubeLogo(),
-                Lottie.asset('assets/lf30_editor_etx2bchi.json', height: 150, width: 150),
+                Lottie.asset('assets/lf30_editor_etx2bchi.json',
+                    height: 150, width: 150),
                 const SizedBox(
                   height: 20,
                 ),
-                HeartbeatProgressIndicator(child: const Text(
-                  "Paste/Insert link:",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),),
+                HeartbeatProgressIndicator(
+                  child: const Text(
+                    "Paste/Insert link:",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                ),
                 const SizedBox(
                   height: 45,
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 60.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 30.0),
                   child: linkContainerField('Youtube link', linkController),
                 ),
                 const SizedBox(
-                  height: 45,
+                  height: 40,
                 ),
                 Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 30),
