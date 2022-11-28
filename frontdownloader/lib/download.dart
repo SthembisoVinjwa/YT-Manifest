@@ -126,7 +126,7 @@ class DownloadScreenState extends State<DownloadScreen> {
   Widget downloadbutton(context) {
     return Material(
         elevation: 5,
-        color: Color(0xff3b3b98),
+        color: const Color(0xff3b3b98),
         borderRadius: BorderRadius.circular(15.0),
         child: MaterialButton(
           minWidth: MediaQuery.of(context).size.width * 1 / 10,
@@ -243,7 +243,7 @@ class DownloadScreenState extends State<DownloadScreen> {
   Widget cancelDownload(context, String title) {
     return Material(
         elevation: 5,
-        color: Colors.red,
+        color: const Color(0xff3b3b98),
         borderRadius: BorderRadius.circular(15.0),
         child: MaterialButton(
           minWidth: MediaQuery.of(context).size.width * 1 / 10,

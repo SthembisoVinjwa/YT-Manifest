@@ -134,15 +134,15 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget _mainPage(context) {
     return SingleChildScrollView(
-        padding: const EdgeInsets.all(15.0),
+        padding: const EdgeInsets.all(40.0),
         child: Center(
           child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 // youtubeLogo(),
-                Lottie.network('https://assets9.lottiefiles.com/private_files/lf30_2h8ujfub.json',height: 200,width: 200),
+                Lottie.asset('assets/lf30_editor_etx2bchi.json', height: 150, width: 150),
                 const SizedBox(
-                  height: 45,
+                  height: 20,
                 ),
                 HeartbeatProgressIndicator(child: const Text(
                   "Paste/Insert link:",
