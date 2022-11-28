@@ -33,6 +33,7 @@ class DownloadScreenState extends State<DownloadScreen> {
   String downloadMessage = '';
   Widget cancel = const Text('');
   bool stop = false;
+  bool justDeleted = false;
 
   @override
   Widget build(BuildContext context) {
@@ -162,8 +163,7 @@ class DownloadScreenState extends State<DownloadScreen> {
               var fileStream = file.openWrite();
 
               await for (final data in stream) {
-                if (stop == true) {
-                  setState(() {});
+                if (stop == true && justDeleted == false) {
                   break;
                 }
                 count += data.length;
@@ -177,7 +177,7 @@ class DownloadScreenState extends State<DownloadScreen> {
               }
 
               setState(() {
-                if (stop == false) {
+                if (stop == false && justDeleted == false) {
                   downloadMessage = 'Done!';
                 } else {
                   stop = false;
@@ -209,7 +209,6 @@ class DownloadScreenState extends State<DownloadScreen> {
 
                 await for (final data in stream) {
                   if (stop == true) {
-                    setState(() {});
                     break;
                   }
                   count += data.length;
@@ -223,7 +222,7 @@ class DownloadScreenState extends State<DownloadScreen> {
                 }
 
                 setState(() {
-                  if (stop == false) {
+                  if (stop == false && justDeleted == false) {
                     downloadMessage = 'Done!';
                   } else {
                     stop = false;
@@ -282,9 +281,11 @@ class DownloadScreenState extends State<DownloadScreen> {
           onPressed: () async {
             setState(() {
               stop = true;
+              justDeleted = false;
               if (title == 'Delete' && file.existsSync()) {
                 file.deleteSync();
                 hide();
+                justDeleted = true;
               }
             });
           },
