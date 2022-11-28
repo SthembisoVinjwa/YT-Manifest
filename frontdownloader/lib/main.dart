@@ -198,7 +198,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                             as RenderBox)
                                         .localToGlobal(Offset.zero))
                                     .dy +
-                                95,
+                                75,
                             0,
                             0),
                         child: Column(

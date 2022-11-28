@@ -139,7 +139,6 @@ class DownloadScreenState extends State<DownloadScreen> {
             ],
           ),
           onPressed: () async {
-            print(true);
             var yt = YoutubeExplode();
             MuxedStreamInfo info = widget.manifest.muxed.firstWhere(
                 (element) => element.qualityLabel == _dropdownValue);
@@ -164,6 +163,7 @@ class DownloadScreenState extends State<DownloadScreen> {
 
               await for (final data in stream) {
                 if (stop == true) {
+                  setState(() {});
                   break;
                 }
                 count += data.length;
@@ -171,7 +171,7 @@ class DownloadScreenState extends State<DownloadScreen> {
                   progress = ((count / len) * 100).ceil();
                   downloadPercentage = (progress == null ? 0.0 : progress*1.0);
                   downloadMessage = 'Download progress: $downloadPercentage%';
-                  cancel = cancelDownload(context, "Cancel");
+                  cancel = cancelDownload(context, "Cancel", file);
                   fileStream.add(data);
                 });
               }
@@ -180,9 +180,10 @@ class DownloadScreenState extends State<DownloadScreen> {
                 if (stop == false) {
                   downloadMessage = 'Done!';
                 } else {
+                  stop = false;
                   downloadMessage = 'Download canceled!';
                 }
-                cancel = cancelDownload(context, "Delete");
+                cancel = cancelDownload(context, "Delete", file);
               });
 
               await fileStream.flush();
@@ -208,6 +209,7 @@ class DownloadScreenState extends State<DownloadScreen> {
 
                 await for (final data in stream) {
                   if (stop == true) {
+                    setState(() {});
                     break;
                   }
                   count += data.length;
@@ -215,7 +217,7 @@ class DownloadScreenState extends State<DownloadScreen> {
                     progress = ((count / len) * 100).ceil();
                     downloadPercentage = (progress == null ? 0.0 : progress*1.0);
                     downloadMessage = 'Download progress: $downloadPercentage%';
-                    cancel = cancelDownload(context, "Cancel");
+                    cancel = cancelDownload(context, "Cancel", file);
                     fileStream.add(data);
                   });
                 }
@@ -224,9 +226,10 @@ class DownloadScreenState extends State<DownloadScreen> {
                   if (stop == false) {
                     downloadMessage = 'Done!';
                   } else {
+                    stop = false;
                     downloadMessage = 'Download canceled!';
                   }
-                  cancel = cancelDownload(context, "Delete");
+                  cancel = cancelDownload(context, "Delete", file);
                 });
 
                 await fileStream.flush();
@@ -256,7 +259,13 @@ class DownloadScreenState extends State<DownloadScreen> {
         ));
   }
 
-  Widget cancelDownload(context, String title) {
+  void hide () {
+    downloadPercentage = 0.0;
+    downloadMessage = '';
+    cancel = const Text('');
+  }
+
+  Widget cancelDownload(context, String title, File file) {
     return Material(
         elevation: 5,
         color: Colors.red,
@@ -267,12 +276,16 @@ class DownloadScreenState extends State<DownloadScreen> {
           child: Stack(
             children:  [
               Text('   $title   ',
-                  style: TextStyle(color: Colors.white, fontSize: 16)),
+                  style: const TextStyle(color: Colors.white, fontSize: 16)),
             ],
           ),
           onPressed: () async {
             setState(() {
               stop = true;
+              if (title == 'Delete' && file.existsSync()) {
+                file.deleteSync();
+                hide();
+              }
             });
           },
         ));
