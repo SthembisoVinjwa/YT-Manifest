@@ -228,10 +228,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
             try {
               var video = await yt.videos.get(linkController.text.trim());
+
+              if (video.isLive) {
+                throw Exception();
+              }
+
               var manifest =
                   await yt.videos.streamsClient.getManifest(video.url);
               Image thumbnail = Image.network(video.thumbnails.standardResUrl);
-
               Navigator.push(
                 context,
                 MaterialPageRoute(
