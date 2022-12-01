@@ -15,3 +15,5 @@ Virtual machine is andriod api 33 (andriod studio)
 https://michelphoenix98.medium.com/implementing-a-simple-survey-app-with-conditional-questions-in-flutter-4c31e95b7040
 youtube resource for flutter: https://www.youtube.com/watch?v=C5lpPjoivaw
 ##Chalice
+
+App value : https://www.rapptrlabs.com/academy/quick-dirty-method-value-app-startup
