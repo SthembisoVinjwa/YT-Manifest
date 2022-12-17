@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 import 'download.dart';
 import 'package:progress_indicators/progress_indicators.dart';
+import 'package:animated_background/animated_background.dart';
 
 const urlPrefix = 'http://localhost:5000';
 
@@ -50,7 +51,7 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   final TextEditingController linkController = TextEditingController();
   GlobalKey key = GlobalKey();
   String login = 'log In';
@@ -131,7 +132,24 @@ class _MyHomePageState extends State<MyHomePage> {
             ],
           ),
         ),
-        body: _mainPage(context));
+        body: AnimatedBackground(
+            vsync: this,
+            behaviour: RandomParticleBehaviour(
+              options: const ParticleOptions(
+                baseColor: Color(0xff3b3b98),
+                spawnOpacity: 0.5,
+                opacityChangeRate: 0.25,
+                minOpacity: 0.1,
+                maxOpacity: 0.4,
+                spawnMinSpeed: 30.0,
+                spawnMaxSpeed: 70.0,
+                spawnMinRadius: 7.0,
+                spawnMaxRadius: 15.0,
+                particleCount: 15,
+              )
+            ),
+            child: _mainPage(context))
+    );
   }
 
   Widget _mainPage(context) {
