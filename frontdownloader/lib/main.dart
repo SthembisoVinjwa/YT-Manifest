@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontdownloader/saved.dart';
 import 'package:http/http.dart' as http;
 import 'package:lottie/lottie.dart';
 import 'dart:convert';
@@ -93,7 +94,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
               },
             ),
             ListTile(
-              title: Text(login),
+              title: const Text('Support Developer'),
               onTap: () {
                 Navigator.pop(context);
               },
@@ -121,15 +122,18 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                           RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(18.0),
                               side: const BorderSide(color: Colors.white)))),
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => const SavedScreen()));
+                  },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      const Icon(Icons.account_circle_outlined),
+                      const Icon(Icons.playlist_add_check_circle),
                       const SizedBox(
                         width: 10,
                       ), // icon
-                      Text(login), // text
+                      Text('Saved Links'), // text
                     ],
                   ),
                 ))
