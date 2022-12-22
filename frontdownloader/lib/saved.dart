@@ -59,7 +59,78 @@ class SavedScreenState extends State<SavedScreen> {
         ],
       ),
       backgroundColor: Colors.white,
+      body: _mainPage(),
     );
   }
 
+  Widget _mainPage() {
+    final List<String> entries = <String>['A', 'B', 'C', 'rr', 'we', 'et'];
+    final List<int> colorCodes = <int>[600, 500, 100, 30, 40, 40];
+
+    final GlobalKey<AnimatedListState> _key = GlobalKey();
+
+    void _removeItem(int index) {
+      String removed;
+      if (entries[0].isNotEmpty) {
+        removed = entries.removeAt(index);
+      } else {
+        removed = entries.removeAt(index);
+      }
+      _key.currentState!.removeItem(index, (_, animation) {
+        return SizeTransition(
+          sizeFactor: animation,
+          child: Card(
+            margin: const EdgeInsets.only(left: 20.0, right: 20.0),
+            elevation: 0,
+            child: ListTile(
+              shape: const BorderDirectional(
+                bottom: BorderSide(color: Colors.white, width: 3),
+              ),
+              contentPadding: EdgeInsets.all(30),
+              title: Text(removed, style: TextStyle(fontSize: 18)),
+            ),
+          ),
+        );
+      }, duration: const Duration(seconds: 1));
+    }
+
+    return AnimatedList(
+      key: _key,
+      initialItemCount: entries.length,
+      padding: const EdgeInsets.all(10),
+      itemBuilder: (context, index, animation) {
+        return SizeTransition(
+            key: UniqueKey(),
+            sizeFactor: animation,
+            child: Container(
+              height: 135,
+              child: Card(
+                margin: EdgeInsets.only(left: 20.0, right: 20.0),
+                elevation: 0,
+                child: ListTile(
+                  shape: const BorderDirectional(
+                    bottom: BorderSide(color: Colors.white, width: 3),
+                  ),
+                  contentPadding: const EdgeInsets.all(30),
+                  title: Text(entries[index],
+                      style: const TextStyle(fontSize: 18)),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextButton.icon(
+                          onPressed: () => {},
+                          icon: const Icon(Icons.download_for_offline_rounded),
+                          label: const Text('Download')),
+                      IconButton(
+                        icon: const Icon(color: Colors.redAccent, Icons.delete),
+                        onPressed: () => _removeItem(index),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ));
+      },
+    );
+  }
 }
