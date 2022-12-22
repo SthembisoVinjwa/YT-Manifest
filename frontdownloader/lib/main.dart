@@ -5,7 +5,10 @@ import 'dart:convert';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 import 'download.dart';
 import 'package:progress_indicators/progress_indicators.dart';
-import 'package:animated_background/animated_background.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'dart:io';
+import 'dart:async';
 
 const urlPrefix = 'http://localhost:5000';
 
@@ -55,100 +58,85 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   final TextEditingController linkController = TextEditingController();
   GlobalKey key = GlobalKey();
   String login = 'log In';
+  String message = '';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        drawer: Drawer(
-          child: ListView(
-            // Important: Remove any padding from the ListView.
-            padding: EdgeInsets.zero,
-            children: [
-              const DrawerHeader(
-                decoration: BoxDecoration(
-                  color: Color(0xff3b3b98),
+      drawer: Drawer(
+        child: ListView(
+          // Important: Remove any padding from the ListView.
+          padding: EdgeInsets.zero,
+          children: [
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Color(0xff3b3b98),
+              ),
+              child: Text(
+                'YT-Manifest',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 25.0,
                 ),
-                child: Text(
-                  'YT-Manifest',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 25.0,
+              ),
+            ),
+            ListTile(
+              title: const Text('Saved Links'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text('Downloads'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: Text(login),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            )
+          ],
+        ),
+      ),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(60.0),
+        child: AppBar(
+          elevation: 0,
+          title: const Text(
+            "YT-Manifest",
+            style: TextStyle(
+              fontSize: 25.0,
+            ),
+          ),
+          centerTitle: true,
+          actions: [
+            Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: ElevatedButton(
+                  style: ButtonStyle(
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(18.0),
+                              side: const BorderSide(color: Colors.white)))),
+                  onPressed: () {},
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      const Icon(Icons.account_circle_outlined),
+                      const SizedBox(
+                        width: 10,
+                      ), // icon
+                      Text(login), // text
+                    ],
                   ),
-                ),
-              ),
-              ListTile(
-                title: const Text('Saved Links'),
-                onTap: () {
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                title: const Text('Downloads'),
-                onTap: () {
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                title: Text(login),
-                onTap: () {
-                  Navigator.pop(context);
-                },
-              )
-            ],
-          ),
+                ))
+          ],
         ),
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(60.0),
-          child: AppBar(
-            elevation: 0,
-            title: const Text(
-              "YT-Manifest",
-              style: TextStyle(
-                fontSize: 25.0,
-              ),
-            ),
-            centerTitle: true,
-            actions: [
-              Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: ElevatedButton(
-                    style: ButtonStyle(
-                        shape: MaterialStateProperty
-                            .all<RoundedRectangleBorder>(RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(18.0),
-                                side: const BorderSide(color: Colors.white)))),
-                    onPressed: () {},
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        const Icon(Icons.account_circle_outlined),
-                        const SizedBox(
-                          width: 10,
-                        ), // icon
-                        Text(login), // text
-                      ],
-                    ),
-                  ))
-            ],
-          ),
-        ),
-        body: AnimatedBackground(
-            vsync: this,
-            behaviour: RandomParticleBehaviour(
-              options: const ParticleOptions(
-                baseColor: Color(0xff3b3b98),
-                spawnOpacity: 0.5,
-                opacityChangeRate: 0.25,
-                minOpacity: 0.1,
-                maxOpacity: 0.4,
-                spawnMinSpeed: 30.0,
-                spawnMaxSpeed: 70.0,
-                spawnMinRadius: 7.0,
-                spawnMaxRadius: 15.0,
-                particleCount: 15,
-              )
-            ),
-            child: _mainPage(context))
+      ),
+      body: _mainPage(context),
     );
   }
 
@@ -163,7 +151,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                 Lottie.asset('assets/lf30_editor_etx2bchi.json',
                     height: 150, width: 150),
                 const SizedBox(
-                  height: 20,
+                  height: 25,
                 ),
                 HeartbeatProgressIndicator(
                   child: const Text(
@@ -172,19 +160,173 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                   ),
                 ),
                 const SizedBox(
-                  height: 45,
+                  height: 60,
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 30.0),
                   child: linkContainerField('Youtube link', linkController),
                 ),
                 const SizedBox(
-                  height: 40,
+                  height: 45,
                 ),
-                Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 30),
-                    child: downloadbutton(context)),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    savebutton(context),
+                    const SizedBox(width: 25),
+                    downloadbutton(context),
+                  ],
+                ),
+                const SizedBox(height: 40),
+                if (message.isNotEmpty)
+                  Text(
+                    message,
+                    style: const TextStyle(
+                        fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
               ]),
+        ));
+  }
+
+  Widget savebutton(context) {
+    return Material(
+        elevation: 5,
+        color: Colors.green,
+        borderRadius: BorderRadius.circular(15.0),
+        child: MaterialButton(
+          minWidth: MediaQuery.of(context).size.width * 1 / 10,
+          height: 55,
+          child: Stack(
+            children: const [
+              Text('Save Link',
+                  style: TextStyle(color: Colors.white, fontSize: 16)),
+            ],
+          ),
+          onPressed: () async {
+            var yt = YoutubeExplode();
+
+            showDialog(
+                context: context,
+                builder: (context) {
+                  return Material(
+                    type: MaterialType.transparency,
+                    child: Container(
+                        padding: EdgeInsets.fromLTRB(
+                            0,
+                            ((key.currentContext?.findRenderObject()
+                                            as RenderBox)
+                                        .localToGlobal(Offset.zero))
+                                    .dy +
+                                75,
+                            0,
+                            0),
+                        child: Column(
+                          children: <Widget>[
+                            const SizedBox(
+                              height: 30,
+                              width: 60,
+                              child: CircularProgressIndicator(
+                                color: Color.fromRGBO(59, 59, 152, 20),
+                                strokeWidth: 20,
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 40,
+                            ),
+                            ScalingText(
+                              'Loading...',
+                              style: const TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            )
+                          ],
+                        )),
+                  );
+                });
+
+            try {
+              var video = await yt.videos.get(linkController.text.trim());
+
+              if (video.isLive) {
+                throw Exception();
+              }
+
+              var manifest =
+                  await yt.videos.streamsClient.getManifest(video.url);
+
+              //save link
+              if (Platform.isLinux) {
+                var path = await getApplicationDocumentsDirectory();
+                var filename = '${path?.path}/YT-Manifest-links.txt';
+                var file = File(filename);
+                if (file.existsSync()) {
+                  file.readAsString().then((value) {
+                    if (value.contains(video.url)) {
+                      setState(() {
+                        message = 'Link already saved!';
+                      });
+                      Timer timer = Timer(const Duration(seconds: 2), () {
+                        setState(() {
+                          message = '';
+                        });
+                      });
+                    } else {
+                      file.writeAsString('${video.url}\n',
+                          mode: FileMode.append);
+                    }
+                  });
+                } else {
+                  file.writeAsString('${video.url}\n', mode: FileMode.append);
+                  setState(() {
+                    message = 'Link saved!';
+                  });
+                  Timer timer = Timer(const Duration(seconds: 2), () {
+                    setState(() {
+                      message = '';
+                    });
+                  });
+                }
+              } else {
+                var permissionStatus = await Permission.storage.request();
+                if (permissionStatus.isGranted) {
+                  var path = await getApplicationDocumentsDirectory();
+                  var filename = '${path?.path}/links.txt';
+                  var file = File(filename);
+                  if (file.existsSync()) {
+                    file.readAsString().then((value) {
+                      if (value.contains(video.url)) {
+                        setState(() {
+                          message = 'Link already saved!';
+                        });
+                        Timer timer = Timer(const Duration(seconds: 2), () {
+                          setState(() {
+                            message = '';
+                          });
+                        });
+                      } else {
+                        file.writeAsString('${video.url}\n',
+                            mode: FileMode.append);
+                      }
+                    });
+                  } else {
+                    file.writeAsString('${video.url}\n', mode: FileMode.append);
+                    setState(() {
+                      message = 'Link saved!';
+                    });
+                    Timer timer = Timer(const Duration(seconds: 2), () {
+                      setState(() {
+                        message = '';
+                      });
+                    });
+                  }
+                }
+              }
+              Navigator.pop(context);
+            } catch (error) {
+              showErrorMessage(
+                  'Invalid Youtube ID or URL: "${linkController.text.trim()}"\n'
+                  'Ensure you have stable internet connection and insert a valid youtube video link');
+            }
+          },
         ));
   }
 
@@ -266,7 +408,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
             } catch (error) {
               showErrorMessage(
                   'Invalid Youtube ID or URL: "${linkController.text.trim()}"\n'
-                      'Ensure you have stable internet connection and insert a valid youtube video link');
+                  'Ensure you have stable internet connection and insert a valid youtube video link');
             }
           },
         ));
@@ -302,7 +444,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           Navigator.pop(context);
           Navigator.pop(context);
         },
-        child: const Text('Ok', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)));
+        child: const Text('Ok',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)));
   }
 
   Widget linkContainerField(
