@@ -123,8 +123,10 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                               borderRadius: BorderRadius.circular(18.0),
                               side: const BorderSide(color: Colors.white)))),
                   onPressed: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => const SavedScreen()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const SavedScreen()));
                   },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -276,6 +278,14 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                     } else {
                       file.writeAsString('${video.url}\n',
                           mode: FileMode.append);
+                      setState(() {
+                        message = 'Link saved!';
+                      });
+                      Timer timer = Timer(const Duration(seconds: 2), () {
+                        setState(() {
+                          message = '';
+                        });
+                      });
                     }
                   });
                 } else {
@@ -309,6 +319,14 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                       } else {
                         file.writeAsString('${video.url}\n',
                             mode: FileMode.append);
+                        setState(() {
+                          message = 'Link saved!';
+                        });
+                        Timer timer = Timer(const Duration(seconds: 2), () {
+                          setState(() {
+                            message = '';
+                          });
+                        });
                       }
                     });
                   } else {
@@ -399,7 +417,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
 
               var manifest =
                   await yt.videos.streamsClient.getManifest(video.url);
-              Image thumbnail = Image.network(video.thumbnails.standardResUrl);
+              Image thumbnail = Image.network(video.thumbnails.mediumResUrl);
               Navigator.push(
                 context,
                 MaterialPageRoute(

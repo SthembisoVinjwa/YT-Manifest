@@ -3,10 +3,13 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:progress_indicators/progress_indicators.dart';
 import 'dart:convert';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+
+import 'content.dart';
 
 const urlPrefix = 'http://localhost:5000';
 
@@ -18,6 +21,31 @@ class SavedScreen extends StatefulWidget {
 }
 
 class SavedScreenState extends State<SavedScreen> {
+  dynamic getLinks() async {
+    List<String> links = [];
+    List<Content> videos = [];
+
+    if (Platform.isLinux) {
+      var path = await getApplicationDocumentsDirectory();
+      var filename = '${path?.path}/YT-Manifest-links.txt';
+      var file = File(filename);
+      if (file.existsSync()) {
+        links = await file.readAsLines();
+        for (String link in links) {
+          var yt = YoutubeExplode();
+          var video = await yt.videos.get(link.trim());
+          Image thumbnail = Image.network(video.thumbnails.lowResUrl);
+          String title = video.title;
+          videos.add(Content(title: title, thumbnail: thumbnail));
+        }
+      } else {
+        print('no saved links');
+      }
+    }
+
+    return videos;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,24 +87,60 @@ class SavedScreenState extends State<SavedScreen> {
         ],
       ),
       backgroundColor: Colors.white,
-      body: _mainPage(),
+      body: FutureBuilder(
+        future: getLinks(),
+        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.hasError) {
+              return Center(
+                child: Text(
+                  '${snapshot.error} occurred',
+                  style: const TextStyle(fontSize: 18),
+                ),
+              );
+            } else if (snapshot.hasData) {
+              final data = snapshot.data;
+              print(data);
+              return _mainPage(data);
+            }
+          }
+          return Material(
+              type: MaterialType.transparency,
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    const SizedBox(
+                      height: 30,
+                      width: 60,
+                      child: CircularProgressIndicator(
+                        color: Color.fromRGBO(59, 59, 152, 20),
+                        strokeWidth: 20,
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 40,
+                    ),
+                    ScalingText(
+                      'Loading...',
+                      style: const TextStyle(
+                          fontSize: 20, fontWeight: FontWeight.bold),
+                    )
+                  ],
+                ),
+              ));
+        },
+      ),
     );
   }
 
-  Widget _mainPage() {
-    final List<String> entries = <String>['A', 'B', 'C', 'rr', 'we', 'et'];
-    final List<int> colorCodes = <int>[600, 500, 100, 30, 40, 40];
-
-    final GlobalKey<AnimatedListState> _key = GlobalKey();
+  Widget _mainPage(List<Content> videos) {
+    final GlobalKey<AnimatedListState> key = GlobalKey();
 
     void _removeItem(int index) {
-      String removed;
-      if (entries[0].isNotEmpty) {
-        removed = entries.removeAt(index);
-      } else {
-        removed = entries.removeAt(index);
-      }
-      _key.currentState!.removeItem(index, (_, animation) {
+      Content removed = videos.removeAt(index);
+
+      key.currentState!.removeItem(index, (_, animation) {
         return SizeTransition(
           sizeFactor: animation,
           child: Card(
@@ -84,10 +148,33 @@ class SavedScreenState extends State<SavedScreen> {
             elevation: 0,
             child: ListTile(
               shape: const BorderDirectional(
-                bottom: BorderSide(color: Colors.white, width: 3),
+                bottom: BorderSide(color: Colors.grey, width: 3),
               ),
               contentPadding: EdgeInsets.all(30),
-              title: Text(removed, style: TextStyle(fontSize: 18)),
+              title: Row(children: [
+                Flexible(child: removed.thumbnail),
+                const SizedBox(
+                  width: 10,
+                ),
+                Flexible(
+                    child: Text(
+                      removed.title,
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                    )),
+              ]),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextButton.icon(
+                      onPressed: () => {},
+                      icon: const Icon(Icons.download_for_offline_rounded),
+                      label: const Text('Download')),
+                  IconButton(
+                    icon: const Icon(color: Colors.redAccent, Icons.delete),
+                    onPressed: () => _removeItem(index),
+                  ),
+                ],
+              ),
             ),
           ),
         );
@@ -95,25 +182,34 @@ class SavedScreenState extends State<SavedScreen> {
     }
 
     return AnimatedList(
-      key: _key,
-      initialItemCount: entries.length,
+      key: key,
+      initialItemCount: videos.length,
       padding: const EdgeInsets.all(10),
       itemBuilder: (context, index, animation) {
         return SizeTransition(
             key: UniqueKey(),
             sizeFactor: animation,
-            child: Container(
-              height: 135,
+            child: SizedBox(
+              height: 145,
               child: Card(
-                margin: EdgeInsets.only(left: 20.0, right: 20.0),
+                margin: const EdgeInsets.only(left: 15.0, right: 15.0),
                 elevation: 0,
                 child: ListTile(
                   shape: const BorderDirectional(
-                    bottom: BorderSide(color: Colors.white, width: 3),
+                    bottom: BorderSide(color: Colors.grey, width: 3),
                   ),
-                  contentPadding: const EdgeInsets.all(30),
-                  title: Text(entries[index],
-                      style: const TextStyle(fontSize: 18)),
+                  contentPadding: const EdgeInsets.all(20),
+                  title: Row(children: [
+                    Flexible(child: videos[index].thumbnail),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    Flexible(
+                        child: Text(
+                      videos[index].title,
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                    )),
+                  ]),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
