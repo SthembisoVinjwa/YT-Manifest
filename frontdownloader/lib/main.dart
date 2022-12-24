@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:frontdownloader/saved.dart';
+import 'package:frontdownloader/support.dart';
 import 'package:http/http.dart' as http;
 import 'package:lottie/lottie.dart';
 import 'dart:convert';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
+import 'about.dart';
 import 'download.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:path_provider/path_provider.dart';
@@ -95,12 +97,20 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
               title: const Text('Support Developer'),
               onTap: () {
                 Navigator.pop(context);
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const SupportScreen()));
               },
             ),
             ListTile(
               title: const Text('About'),
               onTap: () {
                 Navigator.pop(context);
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const AboutScreen()));
               },
             )
           ],
