@@ -68,8 +68,10 @@ class DownloadScreenState extends State<DownloadScreen> {
                             borderRadius: BorderRadius.circular(18.0),
                             side: const BorderSide(color: Colors.white)))),
                 onPressed: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => const SavedScreen()));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const SavedScreen()));
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,

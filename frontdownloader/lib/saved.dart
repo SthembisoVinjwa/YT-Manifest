@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:frontdownloader/main.dart';
 import 'package:http/http.dart' as http;
 import 'package:progress_indicators/progress_indicators.dart';
 import 'dart:convert';
@@ -36,10 +37,29 @@ class SavedScreenState extends State<SavedScreen> {
           var video = await yt.videos.get(link.trim());
           Image thumbnail = Image.network(video.thumbnails.lowResUrl);
           String title = video.title;
-          videos.add(Content(title: title, thumbnail: thumbnail));
+          videos
+              .add(Content(title: title, thumbnail: thumbnail, url: video.url));
         }
-      } else {
-        print('no saved links');
+        return videos;
+      }
+    } else {
+      var permissionStatus = await Permission.storage.request();
+      if (permissionStatus.isGranted) {
+        var path = await getApplicationDocumentsDirectory();
+        var filename = '${path?.path}/links.txt';
+        var file = File(filename);
+        if (file.existsSync()) {
+          links = await file.readAsLines();
+          for (String link in links) {
+            var yt = YoutubeExplode();
+            var video = await yt.videos.get(link.trim());
+            Image thumbnail = Image.network(video.thumbnails.lowResUrl);
+            String title = video.title;
+            videos.add(
+                Content(title: title, thumbnail: thumbnail, url: video.url));
+          }
+          return videos;
+        }
       }
     }
 
@@ -72,15 +92,20 @@ class SavedScreenState extends State<SavedScreen> {
                         RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(18.0),
                             side: const BorderSide(color: Colors.white)))),
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const MyHomePage()));
+                },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: const <Widget>[
-                    Icon(Icons.playlist_add_check_circle),
+                    Icon(Icons.home),
                     SizedBox(
                       width: 10,
                     ), // icon
-                    Text('Saved Links'), // text
+                    Text('Home'), // text
                   ],
                 ),
               ))
@@ -100,7 +125,6 @@ class SavedScreenState extends State<SavedScreen> {
               );
             } else if (snapshot.hasData) {
               final data = snapshot.data;
-              print(data);
               return _mainPage(data);
             }
           }
@@ -137,20 +161,44 @@ class SavedScreenState extends State<SavedScreen> {
   Widget _mainPage(List<Content> videos) {
     final GlobalKey<AnimatedListState> key = GlobalKey();
 
-    void _removeItem(int index) {
+    Future<void> removeItem(int index) async {
       Content removed = videos.removeAt(index);
+      if (Platform.isLinux) {
+        var path = await getApplicationDocumentsDirectory();
+        var filename = '${path?.path}/YT-Manifest-links.txt';
+        var file = File(filename);
+        if (file.existsSync()) {
+          file.writeAsStringSync('', mode: FileMode.write);
+          for (Content video in videos) {
+            file.writeAsStringSync('${video.url}\n', mode: FileMode.append);
+          }
+        }
+      } else {
+        var permissionStatus = await Permission.storage.request();
+        if (permissionStatus.isGranted) {
+          var path = await getApplicationDocumentsDirectory();
+          var filename = '${path?.path}/links.txt';
+          var file = File(filename);
+          if (file.existsSync()) {
+            file.writeAsStringSync('', mode: FileMode.write);
+            for (Content video in videos) {
+              file.writeAsStringSync('${video.url}\n', mode: FileMode.append);
+            }
+          }
+        }
+      }
 
       key.currentState!.removeItem(index, (_, animation) {
         return SizeTransition(
           sizeFactor: animation,
           child: Card(
-            margin: const EdgeInsets.only(left: 20.0, right: 20.0),
+            margin: const EdgeInsets.only(left: 15.0, right: 15.0),
             elevation: 0,
             child: ListTile(
               shape: const BorderDirectional(
                 bottom: BorderSide(color: Colors.grey, width: 3),
               ),
-              contentPadding: EdgeInsets.all(30),
+              contentPadding: const EdgeInsets.all(30),
               title: Row(children: [
                 Flexible(child: removed.thumbnail),
                 const SizedBox(
@@ -158,9 +206,10 @@ class SavedScreenState extends State<SavedScreen> {
                 ),
                 Flexible(
                     child: Text(
-                      removed.title,
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                    )),
+                  removed.title,
+                  style: const TextStyle(
+                      fontSize: 14, fontWeight: FontWeight.bold),
+                )),
               ]),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -171,7 +220,7 @@ class SavedScreenState extends State<SavedScreen> {
                       label: const Text('Download')),
                   IconButton(
                     icon: const Icon(color: Colors.redAccent, Icons.delete),
-                    onPressed: () => _removeItem(index),
+                    onPressed: () => removeItem(index),
                   ),
                 ],
               ),
@@ -179,6 +228,19 @@ class SavedScreenState extends State<SavedScreen> {
           ),
         );
       }, duration: const Duration(seconds: 1));
+
+      if (videos.isEmpty) {
+        Navigator.pop(context);
+      }
+    }
+
+    if (videos.isEmpty) {
+      return const Center(
+        child: Text(
+          'No saved links!',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+      );
     }
 
     return AnimatedList(
@@ -207,7 +269,8 @@ class SavedScreenState extends State<SavedScreen> {
                     Flexible(
                         child: Text(
                       videos[index].title,
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          fontSize: 14, fontWeight: FontWeight.bold),
                     )),
                   ]),
                   trailing: Row(
@@ -219,7 +282,7 @@ class SavedScreenState extends State<SavedScreen> {
                           label: const Text('Download')),
                       IconButton(
                         icon: const Icon(color: Colors.redAccent, Icons.delete),
-                        onPressed: () => _removeItem(index),
+                        onPressed: () => removeItem(index),
                       ),
                     ],
                   ),

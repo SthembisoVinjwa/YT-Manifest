@@ -85,16 +85,20 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
               title: const Text('Saved Links'),
               onTap: () {
                 Navigator.pop(context);
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const SavedScreen()));
               },
             ),
             ListTile(
-              title: const Text('Downloads'),
+              title: const Text('Support Developer'),
               onTap: () {
                 Navigator.pop(context);
               },
             ),
             ListTile(
-              title: const Text('Support Developer'),
+              title: const Text('About'),
               onTap: () {
                 Navigator.pop(context);
               },
@@ -256,8 +260,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                 throw Exception();
               }
 
-              var manifest =
-                  await yt.videos.streamsClient.getManifest(video.url);
+              var manifest = await yt.videos.streamsClient.getManifest(video.url);
 
               //save link
               if (Platform.isLinux) {
@@ -417,7 +420,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
 
               var manifest =
                   await yt.videos.streamsClient.getManifest(video.url);
-              Image thumbnail = Image.network(video.thumbnails.mediumResUrl);
+              Image thumbnail = Image.network(video.thumbnails.standardResUrl);
               Navigator.push(
                 context,
                 MaterialPageRoute(
