@@ -20,14 +20,16 @@ import 'dart:async';
 const urlPrefix = 'http://localhost:5000';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  if (Platform.isAndroid) {
+    WidgetsFlutterBinding.ensureInitialized();
 
-  final adService = AdService(MobileAds.instance);
-  GetIt.instance.registerSingleton<AdService>(adService);
+    final adService = AdService(MobileAds.instance);
+    GetIt.instance.registerSingleton<AdService>(adService);
 
-  await adService.init();
+    await adService.init();
 
-  runApp(const MyApp());
+    runApp(const MyApp());
+  }
 }
 
 class MyApp extends StatelessWidget {
