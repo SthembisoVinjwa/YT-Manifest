@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 // TODO fill in with real values
-const kAndroidBannerUnitId = "ca-app-pub-123/456";
+const kAndroidBannerUnitId = "ca-app-pub-3940256099942544/6300978111";
 const kIosBannerUnitId = "ca-app-pub-789/012";
 
 // The id of your own device will log to the console

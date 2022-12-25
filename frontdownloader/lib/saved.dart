@@ -2,13 +2,16 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontdownloader/main.dart';
+
 //import 'package:http/http.dart' as http;
 import 'package:progress_indicators/progress_indicators.dart';
+
 //import 'dart:convert';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'content.dart';
+import 'download.dart';
 
 //const urlPrefix = 'http://localhost:5000';
 
@@ -35,8 +38,13 @@ class SavedScreenState extends State<SavedScreen> {
           var video = await yt.videos.get(link.trim());
           Image thumbnail = Image.network(video.thumbnails.lowResUrl);
           String title = video.title;
-          videos
-              .add(Content(title: title, thumbnail: thumbnail, url: video.url));
+          var manifest = await yt.videos.streamsClient.getManifest(video.url);
+          videos.add(Content(
+              title: title,
+              thumbnail: thumbnail,
+              url: video.url,
+              manifest: manifest,
+              video: video));
         }
         return videos;
       }
@@ -53,8 +61,13 @@ class SavedScreenState extends State<SavedScreen> {
             var video = await yt.videos.get(link.trim());
             Image thumbnail = Image.network(video.thumbnails.lowResUrl);
             String title = video.title;
-            videos.add(
-                Content(title: title, thumbnail: thumbnail, url: video.url));
+            var manifest = await yt.videos.streamsClient.getManifest(video.url);
+            videos.add(Content(
+                title: title,
+                thumbnail: thumbnail,
+                url: video.url,
+                manifest: manifest,
+                video: video));
           }
           return videos;
         }
@@ -75,15 +88,15 @@ class SavedScreenState extends State<SavedScreen> {
               Navigator.of(context).pop();
             }),
         title: const Text(
-          "YT-Manifest",
+          "Saved Links",
           style: TextStyle(
-            fontSize: 25.0,
+            fontSize: 22.0,
           ),
         ),
         centerTitle: true,
         actions: [
           Padding(
-              padding: const EdgeInsets.all(12.0),
+              padding: const EdgeInsets.all(10.0),
               child: ElevatedButton(
                 style: ButtonStyle(
                     shape: MaterialStateProperty.all<RoundedRectangleBorder>(
@@ -190,13 +203,13 @@ class SavedScreenState extends State<SavedScreen> {
         return SizeTransition(
           sizeFactor: animation,
           child: Card(
-            margin: const EdgeInsets.only(left: 15.0, right: 15.0),
+            margin: const EdgeInsets.only(left: 10.0, right: 10.0),
             elevation: 0,
             child: ListTile(
               shape: const BorderDirectional(
                 bottom: BorderSide(color: Colors.grey, width: 3),
               ),
-              contentPadding: const EdgeInsets.all(30),
+              contentPadding: const EdgeInsets.all(20),
               title: Row(children: [
                 Flexible(child: removed.thumbnail),
                 const SizedBox(
@@ -244,15 +257,15 @@ class SavedScreenState extends State<SavedScreen> {
     return AnimatedList(
       key: key,
       initialItemCount: videos.length,
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(5),
       itemBuilder: (context, index, animation) {
         return SizeTransition(
             key: UniqueKey(),
             sizeFactor: animation,
             child: SizedBox(
-              height: 145,
+              height: 175,
               child: Card(
-                margin: const EdgeInsets.only(left: 15.0, right: 15.0),
+                margin: const EdgeInsets.only(left: 10.0, right: 10.0),
                 elevation: 0,
                 child: ListTile(
                   shape: const BorderDirectional(
@@ -268,14 +281,25 @@ class SavedScreenState extends State<SavedScreen> {
                         child: Text(
                       videos[index].title,
                       style: const TextStyle(
-                          fontSize: 14, fontWeight: FontWeight.bold),
+                          decoration: TextDecoration.underline,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold),
                     )),
                   ]),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       TextButton.icon(
-                          onPressed: () => {},
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => DownloadScreen(
+                                          video: videos[index].video,
+                                          manifest: videos[index].manifest,
+                                          thumbnail: videos[index].thumbnail,
+                                        )));
+                          },
                           icon: const Icon(Icons.download_for_offline_rounded),
                           label: const Text('Download')),
                       IconButton(

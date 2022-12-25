@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:frontdownloader/saved.dart';
 import 'package:frontdownloader/support.dart';
+import 'package:get_it/get_it.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
 import 'package:lottie/lottie.dart';
 import 'dart:convert';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 import 'about.dart';
+import 'ad_service.dart';
+import 'bottom_banner_ad.dart';
 import 'download.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:path_provider/path_provider.dart';
@@ -15,7 +19,14 @@ import 'dart:async';
 
 const urlPrefix = 'http://localhost:5000';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final adService = AdService(MobileAds.instance);
+  GetIt.instance.registerSingleton<AdService>(adService);
+
+  await adService.init();
+
   runApp(const MyApp());
 }
 
@@ -64,6 +75,11 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   String message = '';
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: Drawer(
@@ -79,7 +95,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                 'YT-Manifest',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 25.0,
+                  fontSize: 22.0,
                 ),
               ),
             ),
@@ -123,13 +139,13 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           title: const Text(
             "YT-Manifest",
             style: TextStyle(
-              fontSize: 25.0,
+              fontSize: 22.0,
             ),
           ),
           centerTitle: true,
           actions: [
             Padding(
-                padding: const EdgeInsets.all(12.0),
+                padding: const EdgeInsets.all(10.0),
                 child: ElevatedButton(
                   style: ButtonStyle(
                       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
@@ -144,9 +160,9 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                   },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      const Icon(Icons.playlist_add_check_circle),
-                      const SizedBox(
+                    children: const <Widget>[
+                      Icon(Icons.playlist_add_check_circle),
+                      SizedBox(
                         width: 10,
                       ), // icon
                       Text('Saved Links'), // text
@@ -157,6 +173,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         ),
       ),
       body: _mainPage(context),
+      bottomNavigationBar: const BottomBannerAd(),
     );
   }
 
@@ -214,7 +231,10 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         color: Colors.green,
         borderRadius: BorderRadius.circular(15.0),
         child: MaterialButton(
-          minWidth: MediaQuery.of(context).size.width * 1 / 10,
+          minWidth: MediaQuery
+              .of(context)
+              .size
+              .width * 1 / 10,
           height: 55,
           child: Stack(
             children: const [
@@ -234,9 +254,9 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                         padding: EdgeInsets.fromLTRB(
                             0,
                             ((key.currentContext?.findRenderObject()
-                                            as RenderBox)
-                                        .localToGlobal(Offset.zero))
-                                    .dy +
+                            as RenderBox)
+                                .localToGlobal(Offset.zero))
+                                .dy +
                                 75,
                             0,
                             0),
@@ -270,7 +290,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                 throw Exception();
               }
 
-              var manifest = await yt.videos.streamsClient.getManifest(video.url);
+              var manifest = await yt.videos.streamsClient.getManifest(
+                  video.url);
 
               //save link
               if (Platform.isLinux) {
@@ -359,7 +380,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
             } catch (error) {
               showErrorMessage(
                   'Invalid Youtube ID or URL: "${linkController.text.trim()}"\n'
-                  'Ensure you have stable internet connection and insert a valid youtube video link');
+                      'Ensure you have stable internet connection and insert a valid youtube video link');
             }
           },
         ));
@@ -371,7 +392,10 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         color: const Color(0xff3b3b98),
         borderRadius: BorderRadius.circular(15.0),
         child: MaterialButton(
-          minWidth: MediaQuery.of(context).size.width * 1 / 10,
+          minWidth: MediaQuery
+              .of(context)
+              .size
+              .width * 1 / 10,
           height: 55,
           child: Stack(
             key: key,
@@ -392,9 +416,9 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                         padding: EdgeInsets.fromLTRB(
                             0,
                             ((key.currentContext?.findRenderObject()
-                                            as RenderBox)
-                                        .localToGlobal(Offset.zero))
-                                    .dy +
+                            as RenderBox)
+                                .localToGlobal(Offset.zero))
+                                .dy +
                                 75,
                             0,
                             0),
@@ -429,12 +453,14 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
               }
 
               var manifest =
-                  await yt.videos.streamsClient.getManifest(video.url);
+              await yt.videos.streamsClient.getManifest(video.url);
               Image thumbnail = Image.network(video.thumbnails.standardResUrl);
+              Navigator.pop(context);
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => DownloadScreen(
+                    builder: (context) =>
+                        DownloadScreen(
                           video: video,
                           manifest: manifest,
                           thumbnail: thumbnail,
@@ -443,7 +469,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
             } catch (error) {
               showErrorMessage(
                   'Invalid Youtube ID or URL: "${linkController.text.trim()}"\n'
-                  'Ensure you have stable internet connection and insert a valid youtube video link');
+                      'Ensure you have stable internet connection and insert a valid youtube video link');
             }
           },
         ));
@@ -483,8 +509,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)));
   }
 
-  Widget linkContainerField(
-      String hintText, TextEditingController textController) {
+  Widget linkContainerField(String hintText,
+      TextEditingController textController) {
     var border = OutlineInputBorder(
         borderRadius: BorderRadius.circular(20),
         borderSide: const BorderSide(color: Colors.grey));

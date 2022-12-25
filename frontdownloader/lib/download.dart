@@ -49,18 +49,17 @@ class DownloadScreenState extends State<DownloadScreen> {
             icon: const Icon(Icons.arrow_back_sharp, color: Colors.white),
             onPressed: () {
               Navigator.of(context).pop();
-              Navigator.of(context).pop();
             }),
         title: const Text(
-          "YT-Manifest",
+          "Download Video",
           style: TextStyle(
-            fontSize: 25.0,
+            fontSize: 22.0,
           ),
         ),
         centerTitle: true,
         actions: [
           Padding(
-              padding: const EdgeInsets.all(12.0),
+              padding: const EdgeInsets.all(10.0),
               child: ElevatedButton(
                 style: ButtonStyle(
                     shape: MaterialStateProperty.all<RoundedRectangleBorder>(

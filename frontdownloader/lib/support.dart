@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontdownloader/main.dart';
+import 'package:link_text/link_text.dart';
 
 
 class SupportScreen extends StatefulWidget {
@@ -23,15 +24,15 @@ class SupportScreenState extends State<SupportScreen> {
                 Navigator.of(context).pop();
               }),
           title: const Text(
-            "YT-Manifest",
+            "Support Developer",
             style: TextStyle(
-              fontSize: 25.0,
+              fontSize: 22.0,
             ),
           ),
           centerTitle: true,
           actions: [
             Padding(
-                padding: const EdgeInsets.all(12.0),
+                padding: const EdgeInsets.all(10.0),
                 child: ElevatedButton(
                   style: ButtonStyle(
                       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
@@ -58,7 +59,26 @@ class SupportScreenState extends State<SupportScreen> {
           ],
         ),
         backgroundColor: Colors.white,
-        body: const Center(child: Text('Support Sthembiso Vinjwa', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)))
+        body: Center(
+            child: Column(
+              children:  [
+                const SizedBox(
+                  height: 100,
+                ),
+                const Text("YT-Manifest",
+                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+                Image.asset('assets/icons8-youtube-250.png'),
+                const SizedBox(
+                  height: 10,
+                ),
+                const Text("Support developer:",
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 15),
+                const LinkText(
+                    "https://www.buymeacoffee.com/vinjwacr7e",
+                    linkStyle: TextStyle(color: Color(0xff3b3b98),fontSize: 19, fontWeight: FontWeight.bold)),
+              ],
+            )),
     );
   }
 
