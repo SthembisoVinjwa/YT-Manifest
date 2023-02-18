@@ -8,8 +8,6 @@ import 'package:lottie/lottie.dart';
 import 'dart:convert';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 import 'about.dart';
-import 'ad_service.dart';
-import 'bottom_banner_ad.dart';
 import 'download.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:path_provider/path_provider.dart';
@@ -20,16 +18,7 @@ import 'dart:async';
 const urlPrefix = 'http://localhost:5000';
 
 Future<void> main() async {
-  if (Platform.isAndroid) {
-    WidgetsFlutterBinding.ensureInitialized();
-
-    final adService = AdService(MobileAds.instance);
-    GetIt.instance.registerSingleton<AdService>(adService);
-
-    await adService.init();
-
-    runApp(const MyApp());
-  }
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -175,7 +164,6 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         ),
       ),
       body: _mainPage(context),
-      bottomNavigationBar: const BottomBannerAd(),
     );
   }
 
