@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:frontdownloader/saved.dart';
 import 'package:frontdownloader/support.dart';
 import 'package:get_it/get_it.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
 import 'package:lottie/lottie.dart';
 import 'dart:convert';
@@ -14,10 +13,13 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:io';
 import 'dart:async';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 const urlPrefix = 'http://localhost:5000';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  MobileAds.instance.initialize();
   runApp(const MyApp());
 }
 
@@ -64,10 +66,34 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   GlobalKey key = GlobalKey();
   String login = 'log In';
   String message = '';
+  late BannerAd _bannerAd;
+  bool _isAdLoaded = false;
+
+
 
   @override
   void initState() {
     super.initState();
+    _initBannerAd();
+  }
+
+  void _initBannerAd() {
+    _bannerAd = BannerAd(
+        size: AdSize.banner,
+        adUnitId: 'ca-app-pub-3940256099942544/6300978111',
+        listener: BannerAdListener(
+          onAdLoaded: (ad) {
+            setState(() {
+              _isAdLoaded = true;
+            });
+          },
+          onAdFailedToLoad: (ad, error) {
+            print(error);
+          }
+        ),
+        request: AdRequest());
+
+    _bannerAd.load();
   }
 
   @override
@@ -164,6 +190,11 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         ),
       ),
       body: _mainPage(context),
+      bottomNavigationBar: _isAdLoaded ? Container(
+        height: _bannerAd.size.height.toDouble(),
+        width: _bannerAd.size.width.toDouble(),
+        child: AdWidget(ad: _bannerAd),
+      ) : SizedBox(),
     );
   }
 
