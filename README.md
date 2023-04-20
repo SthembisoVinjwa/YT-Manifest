@@ -20,3 +20,5 @@ youtube resource for flutter: https://www.youtube.com/watch?v=C5lpPjoivaw
 Special thanks to all the flutter package developers who have made it possible me to create this app.
 
 Created by Sthembiso Vinjwa (vinjwacr7@gmail.com)
+
+file:///home/sthembiso/Development/YT-Manifest/app%20graphics/17.png
