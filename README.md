@@ -2,7 +2,7 @@
 
 An app for downloading and saving youtube videos, links and  comments.
 
-Platforms: Ios, Android, Windows, Linux
+Platforms: Android
 
 Dependecies and Installations:
 
