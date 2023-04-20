@@ -21,4 +21,8 @@ Special thanks to all the flutter package developers who have made it possible m
 
 Created by Sthembiso Vinjwa (vinjwacr7@gmail.com)
 
-file:///home/sthembiso/Development/YT-Manifest/app%20graphics/17.png
+https://ibb.co/85Tb4jc
+https://ibb.co/vhPpgfK
+https://ibb.co/fqqYkg0
+https://ibb.co/P94GZYS
+https://ibb.co/T00PNc0
