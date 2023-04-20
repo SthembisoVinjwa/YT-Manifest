@@ -21,6 +21,8 @@ Special thanks to all the flutter package developers who have made it possible m
 
 Created by Sthembiso Vinjwa (vinjwacr7@gmail.com)
 
+BuyMeACoffe: https://www.buymeacoffee.com/vinjwacr7e
+
 ##Home page
 
 ![17](https://user-images.githubusercontent.com/107161916/233446531-3da30fbf-083d-4a44-972f-b040a9dfbc13.png)
